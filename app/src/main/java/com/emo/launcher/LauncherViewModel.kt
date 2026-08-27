@@ -1,4 +1,4 @@
-package com.emo.launcher.ui
+package com.emo.launcher
 
 import android.app.Application
 import android.content.ComponentName
@@ -12,18 +12,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LauncherViewModel(application: Application) : AndroidViewModel(application) {
+class LauncherViewModel(
+    application: Application
+) : AndroidViewModel(application) {
 
     private val repository = AppRepository(application)
 
-    private val _apps = MutableStateFlow<List<AppInfo>>(emptyList())
-    val apps: StateFlow<List<AppInfo>> = _apps.asStateFlow()
+    private val _apps =
+        MutableStateFlow<List<AppInfo>>(emptyList())
 
-    private val _query = MutableStateFlow("")
-    val query: StateFlow<String> = _query.asStateFlow()
+    val apps: StateFlow<List<AppInfo>> =
+        _apps.asStateFlow()
 
-    private val _drawerOpen = MutableStateFlow(false)
-    val drawerOpen: StateFlow<Boolean> = _drawerOpen.asStateFlow()
+    private val _query =
+        MutableStateFlow("")
+
+    val query: StateFlow<String> =
+        _query.asStateFlow()
+
+    private val _drawerOpen =
+        MutableStateFlow(false)
+
+    val drawerOpen: StateFlow<Boolean> =
+        _drawerOpen.asStateFlow()
 
     init {
         refreshApps()
@@ -51,33 +62,59 @@ class LauncherViewModel(application: Application) : AndroidViewModel(application
 
     fun filteredApps(): List<AppInfo> {
         val q = _query.value.trim()
-        if (q.isEmpty()) return _apps.value
+
+        if (q.isEmpty()) {
+            return _apps.value
+        }
+
+        val query = q.lowercase()
 
         return _apps.value
             .map { app ->
+
                 val label = app.label.lowercase()
-                val pkg = app.packageName.lowercase()
-                val query = q.lowercase()
+                val packageName = app.packageName.lowercase()
+
                 val score = when {
                     label == query -> 0
                     label.startsWith(query) -> 1
                     label.contains(query) -> 2
-                    pkg.contains(query) -> 3
+                    packageName.contains(query) -> 3
                     else -> 99
                 }
+
                 app to score
             }
-            .filter { it.second < 99 }
-            .sortedWith(compareBy({ it.second }, { it.first.label.lowercase() }))
+            .filter { (_, score) ->
+                score < 99
+            }
+            .sortedWith(
+                compareBy(
+                    { it.second },
+                    { it.first.label.lowercase() }
+                )
+            )
             .map { it.first }
     }
 
     fun launch(app: AppInfo) {
+
         val context = getApplication<Application>()
+
         val intent = Intent().apply {
-            component = ComponentName(app.packageName, app.activityName)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+            component = ComponentName(
+                app.packageName,
+                app.activityName
+            )
+
+            addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK
+            )
         }
-        runCatching { context.startActivity(intent) }
+
+        runCatching {
+            context.startActivity(intent)
+        }
     }
 }
