@@ -1,334 +1,509 @@
 package com.emo.launcher.ui
 
-import android.graphics.drawable.Drawable
+import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.core.graphics.drawable.toBitmap
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.emo.launcher.model.AppInfo
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
-fun EmoLauncherApp(viewModel: LauncherViewModel = viewModel()) {
-    val apps by viewModel.apps.collectAsStateWithLifecycle()
-    val drawerOpen by viewModel.drawerOpen.collectAsStateWithLifecycle()
-    val query by viewModel.query.collectAsStateWithLifecycle()
+fun EmoLauncherApp(
+    apps: List<AppInfo>,
+    onLaunchApp: (AppInfo) -> Unit
+) {
+    var showDrawer by remember { mutableStateOf(false) }
+    var showSearch by remember { mutableStateOf(false) }
 
-    val now = Date()
-    val time = SimpleDateFormat("HH:mm", Locale.getDefault()).format(now)
-    val date = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(now)
+    AnimatedContent(
+        targetState = when {
+            showSearch -> "search"
+            showDrawer -> "drawer"
+            else -> "home"
+        },
+        transitionSpec = {
+            fadeIn() togetherWith fadeOut()
+        },
+        label = "launcher_screen"
+    ) { screen ->
 
-    MaterialTheme(
-        colorScheme = androidx.compose.material3.darkColorScheme(
-            background = Color.Black,
-            surface = Color(0xFF111111),
-            surfaceContainer = Color(0xFF181818),
-            primary = Color.White,
-            onPrimary = Color.Black,
-            onBackground = Color.White,
-            onSurface = Color.White
-        )
-    ) {
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(drawerOpen) {
-                    detectTapGestures(
-                        onLongPress = {
-                            // Customization surface is introduced in Milestone 2.
-                        },
-                        onDoubleTap = {
-                            // Lock-screen action is intentionally not wired until
-                            // the launcher has a secure DevicePolicy-compatible path.
-                        }
-                    )
-                },
-            color = Color.Black
-        ) {
-            AnimatedContent(
-                targetState = drawerOpen,
-                transitionSpec = {
-                    (fadeIn(spring()) + scaleIn(initialScale = 0.98f)) togetherWith
-                        (fadeOut(spring()) + scaleOut(targetScale = 1.02f))
-                },
-                label = "launcher_surface"
-            ) { open ->
-                if (open) {
-                    Drawer(
-                        apps = apps,
-                        query = query,
-                        onQuery = viewModel::setQuery,
-                        onLaunch = viewModel::launch,
-                        onClose = viewModel::closeDrawer
-                    )
-                } else {
-                    Home(
-                        time = time,
-                        date = date,
-                        onOpenDrawer = viewModel::openDrawer
-                    )
-                }
+        when (screen) {
+            "search" -> {
+                SearchScreen(
+                    apps = apps,
+                    onLaunchApp = onLaunchApp,
+                    onBack = {
+                        showSearch = false
+                    }
+                )
+            }
+
+            "drawer" -> {
+                AppDrawer(
+                    apps = apps,
+                    onLaunchApp = onLaunchApp,
+                    onBack = {
+                        showDrawer = false
+                    }
+                )
+            }
+
+            else -> {
+                HomeScreen(
+                    onOpenDrawer = {
+                        showDrawer = true
+                    },
+                    onOpenSearch = {
+                        showSearch = true
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun Home(
-    time: String,
-    date: String,
-    onOpenDrawer: () -> Unit
+private fun HomeScreen(
+    onOpenDrawer: () -> Unit,
+    onOpenSearch: () -> Unit
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black)
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(horizontal = 22.dp)
+            .background(MaterialTheme.colorScheme.background)
     ) {
+
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.TopCenter)
-                .padding(top = 90.dp),
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Spacer(
+                modifier = Modifier.height(72.dp)
+            )
+
             Text(
-                text = time,
+                text = "11:42",
                 fontSize = 64.sp,
                 fontWeight = FontWeight.Light,
-                letterSpacing = (-2).sp
+                color = MaterialTheme.colorScheme.onBackground
             )
+
             Text(
-                text = date,
-                color = Color(0xFFBDBDBD),
+                text = "Thursday, 27 August",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onBackground.copy(
+                    alpha = 0.65f
+                )
+            )
+
+            Spacer(
+                modifier = Modifier.height(32.dp)
+            )
+
+            SearchBar(
+                onClick = onOpenSearch
+            )
+
+            Spacer(
+                modifier = Modifier.weight(1f)
+            )
+
+            Dock(
+                onOpenDrawer = onOpenDrawer
+            )
+
+            Spacer(
+                modifier = Modifier.height(28.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun SearchBar(
+    onClick: () -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(58.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable {
+                onClick()
+            },
+        shape = RoundedCornerShape(20.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(
+            alpha = 0.75f
+        )
+    ) {
+
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(
+                modifier = Modifier.size(12.dp)
+            )
+
+            Text(
+                text = "Search anything...",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp
             )
         }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(bottom = 28.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(58.dp)
-                    .clip(RoundedCornerShape(29.dp))
-                    .clickable(onClick = onOpenDrawer),
-                color = Color(0xFF171717),
-                tonalElevation = 2.dp
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 20.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Rounded.Search,
-                        contentDescription = "Search apps",
-                        tint = Color(0xFFBDBDBD)
-                    )
-                    Spacer(Modifier.size(12.dp))
-                    Text(
-                        "Search apps",
-                        color = Color(0xFF9E9E9E),
-                        fontSize = 16.sp
-                    )
-                }
-            }
-
-            Spacer(Modifier.height(18.dp))
-
-            Text(
-                text = "Swipe up for apps",
-                color = Color(0xFF666666),
-                fontSize = 12.sp
-            )
-        }
     }
 }
 
 @Composable
-private fun Drawer(
-    apps: List<AppInfo>,
-    query: String,
-    onQuery: (String) -> Unit,
-    onLaunch: (AppInfo) -> Unit,
-    onClose: () -> Unit
+private fun Dock(
+    onOpenDrawer: () -> Unit
 ) {
-    Column(
+    Surface(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black)
-            .windowInsetsPadding(WindowInsets.navigationBars)
-            .padding(horizontal = 16.dp)
-            .padding(top = 52.dp)
+            .fillMaxWidth()
+            .height(72.dp),
+        shape = RoundedCornerShape(28.dp),
+        color = MaterialTheme.colorScheme.surface.copy(
+            alpha = 0.85f
+        ),
+        tonalElevation = 4.dp
     ) {
-        TextField(
-            value = query,
-            onValueChange = onQuery,
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            leadingIcon = {
-                Icon(
-                    Icons.Rounded.Search,
-                    contentDescription = null
-                )
-            },
-            placeholder = { Text("Search anything") },
-            shape = RoundedCornerShape(30.dp),
-            colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color(0xFF181818),
-                unfocusedContainerColor = Color(0xFF181818),
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
-        )
-
-        Spacer(Modifier.height(20.dp))
 
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 18.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = if (query.isBlank()) "All apps" else "Results",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.SemiBold
+
+            DockItem(
+                label = "Apps",
+                onClick = onOpenDrawer
             )
-            Icon(
-                imageVector = Icons.Rounded.Settings,
-                contentDescription = "Launcher settings",
-                tint = Color(0xFF777777),
-                modifier = Modifier.size(22.dp)
+
+            DockItem(
+                label = "Phone"
+            )
+
+            DockItem(
+                label = "Browser"
+            )
+
+            DockItem(
+                label = "Music"
+            )
+        }
+    }
+}
+
+@Composable
+private fun DockItem(
+    label: String,
+    onClick: (() -> Unit)? = null
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(
+                enabled = onClick != null
+            ) {
+                onClick?.invoke()
+            }
+            .padding(8.dp)
+    ) {
+
+        Box(
+            modifier = Modifier
+                .size(38.dp)
+                .clip(RoundedCornerShape(12.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = label.take(1),
+                fontWeight = FontWeight.Medium
             )
         }
 
-        Spacer(Modifier.height(14.dp))
+        Spacer(
+            modifier = Modifier.height(4.dp)
+        )
 
-        if (apps.isEmpty()) {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text(
-                    "No matching apps",
-                    color = Color(0xFF888888)
-                )
-            }
-        } else {
-            LazyVerticalGrid(
-                columns = GridCells.Adaptive(minSize = 78.dp),
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 32.dp),
-                verticalArrangement = Arrangement.spacedBy(18.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(
-                    items = if (query.isBlank()) apps else apps.filter {
-                        val q = query.lowercase()
-                        it.label.lowercase().contains(q) ||
-                            it.packageName.lowercase().contains(q)
-                    },
-                    key = { "${it.packageName}/${it.activityName}" }
-                ) { app ->
-                    AppTile(app = app, onClick = { onLaunch(app) })
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AppDrawer(
+    apps: List<AppInfo>,
+    onLaunchApp: (AppInfo) -> Unit,
+    onBack: () -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Apps"
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
                 }
+            )
+        }
+    ) { padding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(
+                horizontal = 16.dp,
+                vertical = 12.dp
+            )
+        ) {
+
+            items(
+                items = apps,
+                key = { app ->
+                    app.packageName
+                }
+            ) { app ->
+
+                AppRow(
+                    app = app,
+                    onClick = {
+                        onLaunchApp(app)
+                    }
+                )
             }
         }
     }
 }
 
 @Composable
-private fun AppTile(
+private fun AppRow(
     app: AppInfo,
     onClick: () -> Unit
 ) {
-    Column(
+    Row(
         modifier = Modifier
+            .fillMaxWidth()
             .clip(RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
-            .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .clickable {
+                onClick()
+            }
+            .padding(
+                horizontal = 14.dp,
+                vertical = 12.dp
+            ),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        AndroidDrawableIcon(
-            drawable = app.icon,
-            modifier = Modifier.size(48.dp)
+
+        Box(
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+
+            Text(
+                text = app.label
+                    .firstOrNull()
+                    ?.uppercase()
+                    ?: "?",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        Spacer(
+            modifier = Modifier.size(14.dp)
         )
-        Spacer(Modifier.height(7.dp))
-        Text(
-            text = app.label,
-            fontSize = 12.sp,
-            color = Color(0xFFE5E5E5),
-            maxLines = 1
-        )
+
+        Column(
+            modifier = Modifier.weight(1f)
+        ) {
+
+            Text(
+                text = app.label,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Text(
+                text = app.packageName,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AndroidDrawableIcon(
-    drawable: Drawable,
-    modifier: Modifier = Modifier
+private fun SearchScreen(
+    apps: List<AppInfo>,
+    onLaunchApp: (AppInfo) -> Unit,
+    onBack: () -> Unit
 ) {
-    val bitmap: ImageBitmap = drawable.toBitmap(96, 96).asImageBitmap()
-    androidx.compose.foundation.Image(
-        bitmap = bitmap,
-        contentDescription = null,
-        modifier = modifier.clip(RoundedCornerShape(14.dp)),
-        contentScale = ContentScale.Fit
-    )
+    var query by remember {
+        mutableStateOf("")
+    }
+
+    val results = remember(
+        query,
+        apps
+    ) {
+        if (query.isBlank()) {
+            apps
+        } else {
+            val normalized = query.trim().lowercase()
+
+            apps.filter { app ->
+                app.label.lowercase().contains(normalized) ||
+                    app.packageName.lowercase().contains(normalized)
+            }
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    TextField(
+                        value = query,
+                        onValueChange = {
+                            query = it
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = {
+                            Text("Search apps")
+                        },
+                        singleLine = true
+                    )
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        modifier = Modifier.padding(
+                            end = 12.dp
+                        )
+                    )
+                }
+            )
+        }
+    ) { padding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(
+                horizontal = 16.dp,
+                vertical = 12.dp
+            )
+        ) {
+
+            items(
+                items = results,
+                key = { app ->
+                    app.packageName
+                }
+            ) { app ->
+
+                AppRow(
+                    app = app,
+                    onClick = {
+                        onLaunchApp(app)
+                    }
+                )
+            }
+        }
+    }
 }
