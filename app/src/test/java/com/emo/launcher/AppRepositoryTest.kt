@@ -1,11 +1,12 @@
 package com.emo.launcher
 
 import org.junit.Test
-import kotlin.test.assertEquals
+import org.junit.Assert.assertEquals
 
 class AppRepositoryTest {
+
     @Test
-    fun milestoneOneBaseline() {
-        assertEquals(1, 1)
+    fun basicTest() {
+        assertEquals(2, 1 + 1)
     }
 }
