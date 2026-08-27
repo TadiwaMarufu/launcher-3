@@ -14,11 +14,21 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.emo.launcher.model.LauncherSettings
 
 @Composable
 fun HomeScreen(
+    settings: LauncherSettings,
     onOpenDrawer: () -> Unit,
-    onOpenSearch: () -> Unit
+    onOpenSearch: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onOpenWallpaper: () -> Unit,
+    onOpenWidgets: () -> Unit,
+    onUpdateGrid: (Int, Int) -> Unit,
+    onIconSize: (Float) -> Unit,
+    onLabelSize: (Float) -> Unit,
+    onShowLabels: (Boolean) -> Unit,
+    onShowDock: (Boolean) -> Unit
 ) {
     var customizationMode by remember {
         mutableStateOf(false)
@@ -28,9 +38,7 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .emoHomeGestures(
-                onDoubleTap = {
-                    // Reserved for lock-screen integration.
-                },
+                onDoubleTap = {},
                 onLongPress = {
                     customizationMode = true
                 },
@@ -69,27 +77,34 @@ fun HomeScreen(
                 modifier = Modifier.weight(1f)
             )
 
-            LauncherDock(
-                onOpenDrawer = onOpenDrawer
-            )
+            if (settings.showDock) {
+                LauncherDock(
+                    onOpenDrawer = onOpenDrawer
+                )
+            }
         }
 
         HomeCustomizationBar(
             visible = customizationMode,
-            onWallpaper = {
-                // Wallpaper picker will be connected next.
-            },
-            onWidgets = {
-                // AppWidgetHost picker will be connected next.
-            },
+            settings = settings,
+            onWallpaper = onOpenWallpaper,
+            onWidgets = onOpenWidgets,
             onApps = {
                 customizationMode = false
                 onOpenDrawer()
             },
+            onSettings = onOpenSettings,
+            onUpdateGrid = onUpdateGrid,
+            onIconSize = onIconSize,
+            onLabelSize = onLabelSize,
+            onShowLabels = onShowLabels,
+            onShowDock = onShowDock,
             onDone = {
                 customizationMode = false
             },
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(
+                Alignment.BottomCenter
+            )
         )
     }
 }

@@ -6,17 +6,24 @@ import android.content.Intent
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.emo.launcher.data.AppRepository
+import com.emo.launcher.data.LauncherPreferences
 import com.emo.launcher.model.AppInfo
+import com.emo.launcher.model.LauncherSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class LauncherViewModel(
     application: Application
 ) : AndroidViewModel(application) {
 
-    private val repository = AppRepository(application)
+    private val repository =
+        AppRepository(application)
+
+    private val preferences =
+        LauncherPreferences(application)
 
     private val _apps =
         MutableStateFlow<List<AppInfo>>(emptyList())
@@ -36,13 +43,26 @@ class LauncherViewModel(
     val drawerOpen: StateFlow<Boolean> =
         _drawerOpen.asStateFlow()
 
+    private val _settings =
+        MutableStateFlow(LauncherSettings())
+
+    val settings: StateFlow<LauncherSettings> =
+        _settings.asStateFlow()
+
     init {
         refreshApps()
+
+        viewModelScope.launch {
+            preferences.settings.collectLatest {
+                _settings.value = it
+            }
+        }
     }
 
     fun refreshApps() {
         viewModelScope.launch {
-            _apps.value = repository.loadApps()
+            _apps.value =
+                repository.loadApps()
         }
     }
 
@@ -61,31 +81,34 @@ class LauncherViewModel(
     }
 
     fun filteredApps(): List<AppInfo> {
-        val q = _query.value.trim()
+        val q = _query.value
+            .trim()
+            .lowercase()
 
         if (q.isEmpty()) {
             return _apps.value
         }
 
-        val query = q.lowercase()
-
         return _apps.value
             .map { app ->
-                val label = app.label.lowercase()
-                val packageName = app.packageName.lowercase()
+                val label =
+                    app.label.lowercase()
+
+                val packageName =
+                    app.packageName.lowercase()
 
                 val score = when {
-                    label == query -> 0
-                    label.startsWith(query) -> 1
-                    label.contains(query) -> 2
-                    packageName.contains(query) -> 3
+                    label == q -> 0
+                    label.startsWith(q) -> 1
+                    label.contains(q) -> 2
+                    packageName.contains(q) -> 3
                     else -> 99
                 }
 
                 app to score
             }
-            .filter { (_, score) ->
-                score < 99
+            .filter {
+                it.second < 99
             }
             .sortedWith(
                 compareBy(
@@ -93,11 +116,14 @@ class LauncherViewModel(
                     { it.first.label.lowercase() }
                 )
             )
-            .map { it.first }
+            .map {
+                it.first
+            }
     }
 
     fun launch(app: AppInfo) {
-        val context = getApplication<Application>()
+        val context =
+            getApplication<Application>()
 
         val intent = Intent().apply {
             component = ComponentName(
@@ -112,6 +138,66 @@ class LauncherViewModel(
 
         runCatching {
             context.startActivity(intent)
+        }
+    }
+
+    fun updateGrid(
+        columns: Int,
+        rows: Int
+    ) {
+        viewModelScope.launch {
+            preferences.setGrid(
+                columns,
+                rows
+            )
+        }
+    }
+
+    fun updateIconSize(
+        value: Float
+    ) {
+        viewModelScope.launch {
+            preferences.setIconSize(value)
+        }
+    }
+
+    fun updateLabelSize(
+        value: Float
+    ) {
+        viewModelScope.launch {
+            preferences.setLabelSize(value)
+        }
+    }
+
+    fun updateShowLabels(
+        value: Boolean
+    ) {
+        viewModelScope.launch {
+            preferences.setShowLabels(value)
+        }
+    }
+
+    fun updateShowDock(
+        value: Boolean
+    ) {
+        viewModelScope.launch {
+            preferences.setShowDock(value)
+        }
+    }
+
+    fun updateHapticFeedback(
+        value: Boolean
+    ) {
+        viewModelScope.launch {
+            preferences.setHapticFeedback(value)
+        }
+    }
+
+    fun updateReducedMotion(
+        value: Boolean
+    ) {
+        viewModelScope.launch {
+            preferences.setReducedMotion(value)
         }
     }
 }

@@ -41,13 +41,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emo.launcher.model.AppInfo
+import com.emo.launcher.model.LauncherSettings
 import com.emo.launcher.ui.components.EmoAppIcon
 import com.emo.launcher.ui.home.HomeScreen
 
 @Composable
 fun EmoLauncherApp(
     apps: List<AppInfo>,
-    onLaunchApp: (AppInfo) -> Unit
+    settings: LauncherSettings,
+    onLaunchApp: (AppInfo) -> Unit,
+    onUpdateGrid: (Int, Int) -> Unit,
+    onIconSize: (Float) -> Unit,
+    onLabelSize: (Float) -> Unit,
+    onShowLabels: (Boolean) -> Unit,
+    onShowDock: (Boolean) -> Unit
 ) {
     var screen by remember {
         mutableStateOf("home")
@@ -83,14 +90,43 @@ fun EmoLauncherApp(
                 )
             }
 
+            "settings" -> {
+                LauncherSettingsScreen(
+                    settings = settings,
+                    onBack = {
+                        screen = "home"
+                    },
+                    onUpdateGrid = onUpdateGrid,
+                    onIconSize = onIconSize,
+                    onLabelSize = onLabelSize,
+                    onShowLabels = onShowLabels,
+                    onShowDock = onShowDock
+                )
+            }
+
             else -> {
                 HomeScreen(
+                    settings = settings,
                     onOpenDrawer = {
                         screen = "drawer"
                     },
                     onOpenSearch = {
                         screen = "search"
-                    }
+                    },
+                    onOpenSettings = {
+                        screen = "settings"
+                    },
+                    onOpenWallpaper = {
+                        screen = "wallpaper"
+                    },
+                    onOpenWidgets = {
+                        screen = "widgets"
+                    },
+                    onUpdateGrid = onUpdateGrid,
+                    onIconSize = onIconSize,
+                    onLabelSize = onLabelSize,
+                    onShowLabels = onShowLabels,
+                    onShowDock = onShowDock
                 )
             }
         }
@@ -115,10 +151,8 @@ private fun AppDrawer(
                         onClick = onBack
                     ) {
                         Icon(
-                            imageVector =
-                                Icons.Default.ArrowBack,
-                            contentDescription =
-                                "Back"
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
                 }
@@ -130,13 +164,11 @@ private fun AppDrawer(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-
             contentPadding = PaddingValues(
                 horizontal = 16.dp,
                 vertical = 12.dp
             )
         ) {
-
             items(
                 items = apps,
                 key = {
@@ -207,24 +239,19 @@ private fun SearchScreen(
                         singleLine = true
                     )
                 },
-
                 navigationIcon = {
                     IconButton(
                         onClick = onBack
                     ) {
                         Icon(
-                            imageVector =
-                                Icons.Default.ArrowBack,
-                            contentDescription =
-                                "Back"
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back"
                         )
                     }
                 },
-
                 actions = {
                     Icon(
-                        imageVector =
-                            Icons.Default.Search,
+                        Icons.Default.Search,
                         contentDescription = null,
                         modifier = Modifier.padding(
                             end = 12.dp
@@ -239,13 +266,11 @@ private fun SearchScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-
             contentPadding = PaddingValues(
                 horizontal = 16.dp,
                 vertical = 12.dp
             )
         ) {
-
             items(
                 items = results,
                 key = {
@@ -282,7 +307,6 @@ private fun AppRow(
                 horizontal = 14.dp,
                 vertical = 12.dp
             ),
-
         verticalAlignment =
             Alignment.CenterVertically
     ) {
@@ -298,12 +322,10 @@ private fun AppRow(
         Column(
             modifier = Modifier.weight(1f)
         ) {
-
             Text(
                 text = app.label,
                 fontSize = 16.sp,
-                fontWeight =
-                    FontWeight.Medium
+                fontWeight = FontWeight.Medium
             )
 
             Text(
@@ -313,6 +335,101 @@ private fun AppRow(
                     MaterialTheme.colorScheme
                         .onSurfaceVariant
             )
+        }
+    }
+}
+
+@Composable
+private fun LauncherSettingsScreen(
+    settings: LauncherSettings,
+    onBack: () -> Unit,
+    onUpdateGrid: (Int, Int) -> Unit,
+    onIconSize: (Float) -> Unit,
+    onLabelSize: (Float) -> Unit,
+    onShowLabels: (Boolean) -> Unit,
+    onShowDock: (Boolean) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text("EmoLauncher")
+                },
+                navigationIcon = {
+                    IconButton(
+                        onClick = onBack
+                    ) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
+    ) { padding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding),
+            contentPadding = PaddingValues(20.dp),
+            verticalArrangement =
+                Arrangement.spacedBy(12.dp)
+        ) {
+            item {
+                Text(
+                    text = "Appearance",
+                    style =
+                        MaterialTheme.typography
+                            .headlineSmall
+                )
+            }
+
+            item {
+                Text(
+                    text =
+                        "Home grid: " +
+                        "${settings.gridColumns} × " +
+                        settings.gridRows
+                )
+            }
+
+            item {
+                Text(
+                    text =
+                        "Icon scale: " +
+                        "%.2f".format(settings.iconSize)
+                )
+            }
+
+            item {
+                Text(
+                    text =
+                        "Label scale: " +
+                        "%.2f".format(settings.labelSize)
+                )
+            }
+
+            item {
+                Text(
+                    text =
+                        if (settings.showLabels)
+                            "App labels: On"
+                        else
+                            "App labels: Off"
+                )
+            }
+
+            item {
+                Text(
+                    text =
+                        if (settings.showDock)
+                            "Dock: On"
+                        else
+                            "Dock: Off"
+                )
+            }
         }
     }
 }
