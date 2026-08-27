@@ -1,3 +1,5 @@
+@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+
 package com.emo.launcher.ui
 
 import androidx.compose.animation.AnimatedContent
@@ -6,7 +8,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -36,9 +37,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.emo.launcher.model.AppInfo
 import com.emo.launcher.model.LauncherSettings
@@ -133,7 +134,6 @@ fun EmoLauncherApp(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AppDrawer(
     apps: List<AppInfo>,
@@ -151,7 +151,7 @@ private fun AppDrawer(
                         onClick = onBack
                     ) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -187,7 +187,6 @@ private fun AppDrawer(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SearchScreen(
     apps: List<AppInfo>,
@@ -198,8 +197,9 @@ private fun SearchScreen(
         mutableStateOf("")
     }
 
-    val normalizedQuery =
-        query.trim().lowercase()
+    val normalizedQuery = query
+        .trim()
+        .lowercase()
 
     val results = remember(
         normalizedQuery,
@@ -244,14 +244,14 @@ private fun SearchScreen(
                         onClick = onBack
                     ) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
                 },
                 actions = {
                     Icon(
-                        Icons.Default.Search,
+                        imageVector = Icons.Default.Search,
                         contentDescription = null,
                         modifier = Modifier.padding(
                             end = 12.dp
@@ -307,8 +307,7 @@ private fun AppRow(
                 horizontal = 14.dp,
                 vertical = 12.dp
             ),
-        verticalAlignment =
-            Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically
     ) {
 
         EmoAppIcon(
@@ -331,9 +330,9 @@ private fun AppRow(
             Text(
                 text = app.packageName,
                 fontSize = 12.sp,
-                color =
-                    MaterialTheme.colorScheme
-                        .onSurfaceVariant
+                color = MaterialTheme
+                    .colorScheme
+                    .onSurfaceVariant
             )
         }
     }
@@ -360,7 +359,7 @@ private fun LauncherSettingsScreen(
                         onClick = onBack
                     ) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back"
                         )
                     }
@@ -374,15 +373,15 @@ private fun LauncherSettingsScreen(
                 .fillMaxSize()
                 .padding(padding),
             contentPadding = PaddingValues(20.dp),
-            verticalArrangement =
-                Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+
             item {
                 Text(
                     text = "Appearance",
-                    style =
-                        MaterialTheme.typography
-                            .headlineSmall
+                    style = MaterialTheme
+                        .typography
+                        .headlineSmall
                 )
             }
 
@@ -399,7 +398,9 @@ private fun LauncherSettingsScreen(
                 Text(
                     text =
                         "Icon scale: " +
-                        "%.2f".format(settings.iconSize)
+                        "%.2f".format(
+                            settings.iconSize
+                        )
                 )
             }
 
@@ -407,27 +408,31 @@ private fun LauncherSettingsScreen(
                 Text(
                     text =
                         "Label scale: " +
-                        "%.2f".format(settings.labelSize)
+                        "%.2f".format(
+                            settings.labelSize
+                        )
                 )
             }
 
             item {
                 Text(
                     text =
-                        if (settings.showLabels)
+                        if (settings.showLabels) {
                             "App labels: On"
-                        else
+                        } else {
                             "App labels: Off"
+                        }
                 )
             }
 
             item {
                 Text(
                     text =
-                        if (settings.showDock)
+                        if (settings.showDock) {
                             "Dock: On"
-                        else
+                        } else {
                             "Dock: Off"
+                        }
                 )
             }
         }
