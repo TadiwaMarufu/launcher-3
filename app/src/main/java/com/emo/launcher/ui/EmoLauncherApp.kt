@@ -1,4 +1,4 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalMaterial3Api::class)
 
 package com.emo.launcher.ui
 
@@ -37,9 +37,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.clip
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emo.launcher.model.AppInfo
 import com.emo.launcher.model.LauncherSettings
@@ -300,9 +300,9 @@ private fun AppRow(
             .clip(
                 RoundedCornerShape(18.dp)
             )
-            .clickable {
-                onClick()
-            }
+            .clickable(
+                onClick = onClick
+            )
             .padding(
                 horizontal = 14.dp,
                 vertical = 12.dp
@@ -398,9 +398,7 @@ private fun LauncherSettingsScreen(
                 Text(
                     text =
                         "Icon scale: " +
-                        "%.2f".format(
-                            settings.iconSize
-                        )
+                        "%.2f".format(settings.iconSize)
                 )
             }
 
@@ -408,9 +406,7 @@ private fun LauncherSettingsScreen(
                 Text(
                     text =
                         "Label scale: " +
-                        "%.2f".format(
-                            settings.labelSize
-                        )
+                        "%.2f".format(settings.labelSize)
                 )
             }
 
