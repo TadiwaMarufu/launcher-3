@@ -1,4 +1,3 @@
-cat > app/src/main/java/com/emo/launcher/MainActivity.kt <<'EOF'
 package com.emo.launcher
 
 import android.os.Bundle
@@ -32,4 +31,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-EOF
