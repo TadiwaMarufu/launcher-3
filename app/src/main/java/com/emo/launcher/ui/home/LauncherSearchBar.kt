@@ -1,70 +1,29 @@
-package com.emo.launcher.ui.home
+package com.emo.launcher
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import com.emo.launcher.ui.EmoLauncherApp
+import com.emo.launcher.ui.theme.LauncherTheme
 
-@Composable
-fun LauncherClock() {
+class MainActivity : ComponentActivity() {
 
-    var now by remember {
-        mutableStateOf(Date())
-    }
+    private val viewModel: LauncherViewModel by viewModels()
 
-    LaunchedEffect(Unit) {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-        while (true) {
+        enableEdgeToEdge()
 
-            now = Date()
-
-            delay(1000)
+        setContent {
+            LauncherTheme {
+                EmoLauncherApp(
+                    apps = viewModel.apps.collectAsState().value,
+                    onLaunchApp = viewModel::launch
+                )
+            }
         }
-    }
-
-    val time =
-        SimpleDateFormat(
-            "HH:mm",
-            Locale.getDefault()
-        ).format(now)
-
-    val date =
-        SimpleDateFormat(
-            "EEEE, d MMMM",
-            Locale.getDefault()
-        ).format(now)
-
-    Column(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-
-        Text(
-            text = time,
-            fontSize = 64.sp,
-            fontWeight = FontWeight.Light,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        Text(
-            text = date.uppercase(),
-            fontSize = 13.sp,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onBackground.copy(
-                alpha = 0.65f
-            )
-        )
     }
 }

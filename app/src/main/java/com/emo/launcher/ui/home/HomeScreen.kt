@@ -15,7 +15,6 @@ fun HomeScreen(
     onOpenDrawer: () -> Unit,
     onOpenSearch: () -> Unit
 ) {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -23,10 +22,8 @@ fun HomeScreen(
                 horizontal = 22.dp,
                 vertical = 28.dp
             ),
-        verticalArrangement =
-            Arrangement.Top
+        verticalArrangement = Arrangement.Top
     ) {
-
         LauncherClock()
 
         Spacer(

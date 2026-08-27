@@ -23,11 +23,9 @@ import com.emo.launcher.ui.components.EmoGlassSurface
 fun LauncherDock(
     onOpenDrawer: () -> Unit
 ) {
-
     EmoGlassSurface(
         modifier = Modifier.fillMaxWidth()
     ) {
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -35,22 +33,17 @@ fun LauncherDock(
                     horizontal = 12.dp,
                     vertical = 10.dp
                 ),
-            horizontalArrangement =
-                Arrangement.SpaceEvenly,
-            verticalAlignment =
-                Alignment.CenterVertically
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-
             DockItem(
                 label = "Apps",
                 onClick = onOpenDrawer
             )
 
-            DockItem("Phone")
-
-            DockItem("Browser")
-
-            DockItem("Music")
+            DockItem(label = "Phone")
+            DockItem(label = "Browser")
+            DockItem(label = "Music")
         }
     }
 }
@@ -60,40 +53,28 @@ private fun DockItem(
     label: String,
     onClick: (() -> Unit)? = null
 ) {
-
-    androidx.compose.foundation.layout.Column(
-        horizontalAlignment =
-            Alignment.CenterHorizontally,
-        modifier =
-            Modifier
-                .padding(6.dp)
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(6.dp)
     ) {
-
-        androidx.compose.foundation.layout.Box(
-            modifier =
-                Modifier
-                    .size(44.dp)
-                    .clip(
-                        RoundedCornerShape(14.dp)
-                    )
-                    .background(
-                        MaterialTheme
-                            .colorScheme
-                            .surfaceVariant
-                    )
-                    .then(
-                        if (onClick != null) {
-                            Modifier.clickable {
-                                onClick()
-                            }
-                        } else {
-                            Modifier
+        Box(
+            modifier = Modifier
+                .size(44.dp)
+                .clip(RoundedCornerShape(14.dp))
+                .background(
+                    MaterialTheme.colorScheme.surfaceVariant
+                )
+                .then(
+                    if (onClick != null) {
+                        Modifier.clickable {
+                            onClick()
                         }
-                    ),
-            contentAlignment =
-                Alignment.Center
+                    } else {
+                        Modifier
+                    }
+                ),
+            contentAlignment = Alignment.Center
         ) {
-
             Text(
                 text = label
                     .first()

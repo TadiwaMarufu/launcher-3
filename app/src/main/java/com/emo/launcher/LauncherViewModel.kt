@@ -71,7 +71,6 @@ class LauncherViewModel(
 
         return _apps.value
             .map { app ->
-
                 val label = app.label.lowercase()
                 val packageName = app.packageName.lowercase()
 
@@ -98,11 +97,9 @@ class LauncherViewModel(
     }
 
     fun launch(app: AppInfo) {
-
         val context = getApplication<Application>()
 
         val intent = Intent().apply {
-
             component = ComponentName(
                 app.packageName,
                 app.activityName
