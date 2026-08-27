@@ -1,3 +1,4 @@
+cat > app/src/main/java/com/emo/launcher/MainActivity.kt <<'EOF'
 package com.emo.launcher
 
 import android.os.Bundle
@@ -5,6 +6,8 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import com.emo.launcher.ui.EmoLauncherApp
 import com.emo.launcher.ui.theme.LauncherTheme
 
@@ -19,11 +22,14 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             LauncherTheme {
+                val apps by viewModel.apps.collectAsState()
+
                 EmoLauncherApp(
-                    apps = viewModel.apps.collectAsState().value,
+                    apps = apps,
                     onLaunchApp = viewModel::launch
                 )
             }
         }
     }
 }
+EOF

@@ -1,29 +1,52 @@
-package com.emo.launcher
+cat > app/src/main/java/com/emo/launcher/ui/home/LauncherSearchBar.kt <<'EOF'
+package com.emo.launcher.ui.home
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
-import com.emo.launcher.ui.EmoLauncherApp
-import com.emo.launcher.ui.theme.LauncherTheme
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.unit.dp
 
-class MainActivity : ComponentActivity() {
+@Composable
+fun LauncherSearchBar(
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(58.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .clickable(onClick = onClick)
+            .padding(horizontal = 18.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.Search,
+            contentDescription = "Search",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant
+        )
 
-    private val viewModel: LauncherViewModel by viewModels()
+        Spacer(
+            modifier = Modifier.size(12.dp)
+        )
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        enableEdgeToEdge()
-
-        setContent {
-            LauncherTheme {
-                EmoLauncherApp(
-                    apps = viewModel.apps.collectAsState().value,
-                    onLaunchApp = viewModel::launch
-                )
-            }
-        }
+        Text(
+            text = "Search anything...",
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
+EOF

@@ -1,3 +1,4 @@
+cat > app/src/main/java/com/emo/launcher/ui/home/HomeScreen.kt <<'EOF'
 package com.emo.launcher.ui.home
 
 import androidx.compose.foundation.layout.Arrangement
@@ -43,3 +44,4 @@ fun HomeScreen(
         )
     }
 }
+EOF
