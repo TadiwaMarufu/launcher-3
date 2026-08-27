@@ -14,15 +14,18 @@ class MainActivity : ComponentActivity() {
 
     private val viewModel: LauncherViewModel by viewModels()
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
 
         setContent {
-            LauncherTheme {
 
-                val apps by viewModel.apps.collectAsState()
+            val apps by viewModel.apps.collectAsState()
+
+            LauncherTheme {
 
                 EmoLauncherApp(
                     apps = apps,
