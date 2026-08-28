@@ -28,7 +28,8 @@ fun HomeScreen(
     onIconSize: (Float) -> Unit,
     onLabelSize: (Float) -> Unit,
     onShowLabels: (Boolean) -> Unit,
-    onShowDock: (Boolean) -> Unit
+    onShowDock: (Boolean) -> Unit,
+    onDoubleTapLock: () -> Unit
 ) {
     var customizationMode by remember {
         mutableStateOf(false)
@@ -38,7 +39,11 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .emoHomeGestures(
-                onDoubleTap = {},
+                onDoubleTap = {
+                    if (!customizationMode) {
+                        onDoubleTapLock()
+                    }
+                },
                 onLongPress = {
                     customizationMode = true
                 },

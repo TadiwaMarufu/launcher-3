@@ -55,7 +55,8 @@ fun EmoLauncherApp(
     onIconSize: (Float) -> Unit,
     onLabelSize: (Float) -> Unit,
     onShowLabels: (Boolean) -> Unit,
-    onShowDock: (Boolean) -> Unit
+    onShowDock: (Boolean) -> Unit,
+    onDoubleTapLock: () -> Unit
 ) {
     var screen by remember {
         mutableStateOf("home")
@@ -101,7 +102,8 @@ fun EmoLauncherApp(
                     onIconSize = onIconSize,
                     onLabelSize = onLabelSize,
                     onShowLabels = onShowLabels,
-                    onShowDock = onShowDock
+                    onShowDock = onShowDock,
+                    onDoubleTapLock = onDoubleTapLock
                 )
             }
 
