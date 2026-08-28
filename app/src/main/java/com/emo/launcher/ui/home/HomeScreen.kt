@@ -93,6 +93,10 @@ fun HomeScreen(
                 }
             )
     ) {
+        LauncherWallpaper(
+            config = settings.wallpaperConfig
+        )
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -172,8 +176,11 @@ fun HomeScreen(
             }
         }
 
-        HomeCustomizationBar(
-            visible = customizationMode,
+        AnimatedVisibility(
+            visible = customizationMode
+        ) {
+            HomeCustomizationBar(
+                visible = true,
             settings = settings,
             onWallpaper = onOpenWallpaper,
             onWidgets = onOpenWidgets,
@@ -190,10 +197,11 @@ fun HomeScreen(
             onDone = {
                 customizationMode = false
             },
-            modifier = Modifier.align(
-                Alignment.BottomCenter
+                modifier = Modifier.align(
+                    Alignment.BottomCenter
+                )
             )
-        )
+        }
     }
 }
 
