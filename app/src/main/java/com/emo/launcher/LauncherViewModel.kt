@@ -219,9 +219,8 @@ class LauncherViewModel(
     ) {
         viewModelScope.launch {
             homeLayout.moveApp(
-                packageName = app.packageName,
-                activityName = app.activityName,
-                position = position
+                app = app,
+                newPosition = position
             )
         }
     }
