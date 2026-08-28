@@ -18,11 +18,12 @@ import androidx.core.graphics.drawable.toBitmap
 @Composable
 fun EmoAppIcon(
     icon: Drawable?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    iconSize: Float = 52f
 ) {
     Box(
         modifier = modifier
-            .size(52.dp)
+            .size(iconSize.dp)
             .clip(
                 RoundedCornerShape(16.dp)
             )
@@ -38,7 +39,7 @@ fun EmoAppIcon(
                     height = 96
                 ).asImageBitmap(),
                 contentDescription = null,
-                modifier = Modifier.size(42.dp)
+                modifier = Modifier.size((iconSize * 0.81f).dp)
             )
         }
     }
