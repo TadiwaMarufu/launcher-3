@@ -8,12 +8,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntOffset
 import kotlin.math.roundToInt
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -231,12 +227,7 @@ private fun HomeAppItem(
         mutableStateOf(0f)
     }
 
-    LaunchedEffect(customizationMode) {
-        if (!customizationMode) {
-            dragging = false
-            dragOffsetX = 0f
-            dragOffsetY = 0f
-        }
+
     }
 
     Column(
