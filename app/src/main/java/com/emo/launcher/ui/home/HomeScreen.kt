@@ -3,13 +3,8 @@ package com.emo.launcher.ui.home
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
-import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.unit.IntOffset
-import kotlin.math.roundToInt
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -93,10 +88,6 @@ fun HomeScreen(
                 }
             )
     ) {
-        LauncherWallpaper(
-            config = settings.wallpaperConfig
-        )
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -176,10 +167,7 @@ fun HomeScreen(
             }
         }
 
-        AnimatedVisibility(
-            visible = customizationMode
-        ) {
-            HomeCustomizationBar(
+        HomeCustomizationBar(
                 visible = true,
             settings = settings,
             onWallpaper = onOpenWallpaper,
@@ -215,66 +203,13 @@ private fun HomeAppItem(
     onLongClick: () -> Unit,
     onMove: (Int) -> Unit
 ) {
-    var dragging by remember {
-        mutableStateOf(false)
-    }
-
-    var dragOffsetX by remember {
-        mutableStateOf(0f)
-    }
-
-    var dragOffsetY by remember {
-        mutableStateOf(0f)
-    }
-
-    LaunchedEffect(customizationMode) {
-        if (!customizationMode) {
-            dragging = false
-            dragOffsetX = 0f
-            dragOffsetY = 0f
-        }
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset {
-                IntOffset(
-                    dragOffsetX.roundToInt(),
-                    dragOffsetY.roundToInt()
-                )
-            }
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = {
-                    onLongClick()
-                    dragging = true
-                }
-            )
-            .pointerInput(customizationMode) {
-                if (customizationMode) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
-                            dragging = true
-                        },
-                        onDragCancel = {
-                            dragging = false
-                            dragOffsetX = 0f
-                            dragOffsetY = 0f
-                        },
-                        onDragEnd = {
-                            dragging = false
-                            dragOffsetX = 0f
-                            dragOffsetY = 0f
-                        },
-                        onDrag = { change, amount ->
-                            change.consume()
-                            dragOffsetX += amount.x
-                            dragOffsetY += amount.y
-                        }
-                    )
-                }
-            },
+                onLongClick = onLongClick
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         EmoAppIcon(
