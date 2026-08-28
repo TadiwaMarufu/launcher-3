@@ -24,12 +24,12 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenWallpaper: () -> Unit,
     onOpenWidgets: () -> Unit,
+    onDoubleTapLock: () -> Unit,
     onUpdateGrid: (Int, Int) -> Unit,
     onIconSize: (Float) -> Unit,
     onLabelSize: (Float) -> Unit,
     onShowLabels: (Boolean) -> Unit,
     onShowDock: (Boolean) -> Unit,
-    onDoubleTapLock: () -> Unit
 ) {
     var customizationMode by remember {
         mutableStateOf(false)
