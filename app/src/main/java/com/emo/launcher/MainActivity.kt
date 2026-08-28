@@ -57,7 +57,9 @@ class MainActivity : ComponentActivity() {
                             .handleDoubleTapLock(
                                 this
                             )
-                    }
+                    },
+                    onMoveHomeApp =
+                        viewModel::moveHomeApp
                 )
             }
         }

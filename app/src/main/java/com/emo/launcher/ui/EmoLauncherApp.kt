@@ -58,7 +58,8 @@ fun EmoLauncherApp(
     onLabelSize: (Float) -> Unit,
     onShowLabels: (Boolean) -> Unit,
     onShowDock: (Boolean) -> Unit,
-    onDoubleTapLock: () -> Unit
+    onDoubleTapLock: () -> Unit,
+    onMoveHomeApp: (HomeItem.App, Int) -> Unit
 ) {
     var screen by remember {
         mutableStateOf("home")
@@ -135,9 +136,7 @@ fun EmoLauncherApp(
                     onShowLabels = onShowLabels,
                     onShowDock = onShowDock,
                     onDoubleTapLock = onDoubleTapLock,
-                    onMoveHomeApp = { app, position ->
-                        // Home reordering is wired at the ViewModel layer.
-                    }
+                    onMoveHomeApp = onMoveHomeApp
                 )
             }
         }
