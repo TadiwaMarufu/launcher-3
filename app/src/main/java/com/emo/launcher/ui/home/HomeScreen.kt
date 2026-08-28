@@ -2,6 +2,8 @@ package com.emo.launcher.ui.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -207,7 +209,18 @@ private fun HomeAppItem(
             .combinedClickable(
                 onClick = onClick,
                 onLongClick = onLongClick
-            ),
+            )
+            .pointerInput(customizationMode) {
+                if (customizationMode) {
+                    detectDragGesturesAfterLongPress(
+                        onDragEnd = {},
+                        onDragCancel = {},
+                        onDrag = { change, _ ->
+                            change.consume()
+                        }
+                    )
+                }
+            },
         horizontalAlignment =
             Alignment.CenterHorizontally
     ) {
