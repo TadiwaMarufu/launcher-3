@@ -2,9 +2,13 @@ package com.emo.launcher.ui.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.offset
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.unit.IntOffset
+import kotlin.math.roundToInt
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.layout.offset
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.pointerInput
@@ -54,6 +58,14 @@ fun HomeScreen(
 ) {
     var customizationMode by remember {
         mutableStateOf(false)
+    }
+
+    var draggingId by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    var dragOffset by remember {
+        mutableStateOf(0f)
     }
 
     val appsById =
