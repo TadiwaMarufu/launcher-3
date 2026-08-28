@@ -102,8 +102,7 @@ fun EmoLauncherApp(
                     onIconSize = onIconSize,
                     onLabelSize = onLabelSize,
                     onShowLabels = onShowLabels,
-                    onShowDock = onShowDock,
-                    onDoubleTapLock = onDoubleTapLock
+                    onShowDock = onShowDock
                 )
             }
 
@@ -129,7 +128,8 @@ fun EmoLauncherApp(
                     onIconSize = onIconSize,
                     onLabelSize = onLabelSize,
                     onShowLabels = onShowLabels,
-                    onShowDock = onShowDock
+                    onShowDock = onShowDock,
+                    onDoubleTapLock = onDoubleTapLock
                 )
             }
         }
