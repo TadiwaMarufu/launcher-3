@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emo.launcher.model.AppInfo
+import com.emo.launcher.model.HomeItem
 import com.emo.launcher.model.LauncherSettings
 import com.emo.launcher.ui.components.EmoAppIcon
 import com.emo.launcher.ui.home.HomeScreen
@@ -49,6 +50,7 @@ import com.emo.launcher.ui.home.HomeScreen
 @Composable
 fun EmoLauncherApp(
     apps: List<AppInfo>,
+    homeItems: List<HomeItem.App>,
     settings: LauncherSettings,
     onLaunchApp: (AppInfo) -> Unit,
     onUpdateGrid: (Int, Int) -> Unit,
@@ -108,7 +110,10 @@ fun EmoLauncherApp(
 
             else -> {
                 HomeScreen(
+                    apps = apps,
+                    homeItems = homeItems,
                     settings = settings,
+                    onLaunchApp = onLaunchApp,
                     onOpenDrawer = {
                         screen = "drawer"
                     },
@@ -129,7 +134,10 @@ fun EmoLauncherApp(
                     onLabelSize = onLabelSize,
                     onShowLabels = onShowLabels,
                     onShowDock = onShowDock,
-                    onDoubleTapLock = onDoubleTapLock
+                    onDoubleTapLock = onDoubleTapLock,
+                    onMoveHomeApp = { app, position ->
+                        // Home reordering is wired at the ViewModel layer.
+                    }
                 )
             }
         }

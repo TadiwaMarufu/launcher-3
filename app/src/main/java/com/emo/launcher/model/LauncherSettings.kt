@@ -9,5 +9,9 @@ data class LauncherSettings(
     val showDock: Boolean = true,
     val dockSize: Int = 4,
     val hapticFeedback: Boolean = true,
-    val reducedMotion: Boolean = false
+    val reducedMotion: Boolean = false,
+    val wallpaperUri: String = "",
+    val wallpaperBrightness: Float = 0f,
+    val wallpaperContrast: Float = 1f,
+    val wallpaperPreset: String = "Pure"
 )

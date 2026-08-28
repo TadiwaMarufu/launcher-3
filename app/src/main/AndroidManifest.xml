@@ -10,25 +10,27 @@
 
     <application
         android:allowBackup="true"
-        android:label="EmoLauncher"
+        android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.EmoLauncher">
 
-        <receiver
-            android:name=".security.EmoDeviceAdminReceiver"
-            android:description="@string/device_admin_description"
-            android:exported="true"
-            android:label="EmoLauncher">
-
-            <meta-data
-                android:name="android.app.device_admin"
-                android:resource="@xml/device_admin_receiver" />
+        <service
+            android:name=".security.EmoAccessibilityService"
+            android:description="@string/accessibility_service_description"
+            android:exported="false"
+            android:label="@string/accessibility_service_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
 
             <intent-filter>
                 <action
-                    android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+                    android:name="android.accessibilityservice.AccessibilityService" />
             </intent-filter>
-        </receiver>
+
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/emo_accessibility_service" />
+
+        </service>
 
         <activity
             android:name=".MainActivity"

@@ -7,7 +7,7 @@ sealed class HomeItem {
     data class App(
         override val id: String,
         val packageName: String,
-        val label: String,
+        val activityName: String,
         override val position: Int
     ) : HomeItem()
 

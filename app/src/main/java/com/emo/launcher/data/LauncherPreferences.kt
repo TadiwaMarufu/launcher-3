@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.emo.launcher.model.LauncherSettings
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,10 @@ class LauncherPreferences(
         val DOCK_SIZE = intPreferencesKey("dock_size")
         val HAPTIC = booleanPreferencesKey("haptic")
         val REDUCED_MOTION = booleanPreferencesKey("reduced_motion")
+        val WALLPAPER_URI = stringPreferencesKey("wallpaper_uri")
+        val WALLPAPER_BRIGHTNESS = floatPreferencesKey("wallpaper_brightness")
+        val WALLPAPER_CONTRAST = floatPreferencesKey("wallpaper_contrast")
+        val WALLPAPER_PRESET = stringPreferencesKey("wallpaper_preset")
     }
 
     val settings: Flow<LauncherSettings> =
@@ -42,9 +47,50 @@ class LauncherPreferences(
                 showDock = preferences[Keys.SHOW_DOCK] ?: true,
                 dockSize = preferences[Keys.DOCK_SIZE] ?: 4,
                 hapticFeedback = preferences[Keys.HAPTIC] ?: true,
-                reducedMotion = preferences[Keys.REDUCED_MOTION] ?: false
+                reducedMotion = preferences[Keys.REDUCED_MOTION] ?: false,
+                wallpaperUri = preferences[Keys.WALLPAPER_URI] ?: "",
+                wallpaperBrightness =
+                    preferences[Keys.WALLPAPER_BRIGHTNESS] ?: 0f,
+                wallpaperContrast =
+                    preferences[Keys.WALLPAPER_CONTRAST] ?: 1f,
+                wallpaperPreset =
+                    preferences[Keys.WALLPAPER_PRESET] ?: "Pure"
             )
         }
+
+    suspend fun setWallpaper(
+        uri: String
+    ) {
+        context.launcherDataStore.edit { preferences ->
+            preferences[Keys.WALLPAPER_URI] = uri
+        }
+    }
+
+    suspend fun setWallpaperBrightness(
+        value: Float
+    ) {
+        context.launcherDataStore.edit { preferences ->
+            preferences[Keys.WALLPAPER_BRIGHTNESS] =
+                value.coerceIn(-1f, 1f)
+        }
+    }
+
+    suspend fun setWallpaperContrast(
+        value: Float
+    ) {
+        context.launcherDataStore.edit { preferences ->
+            preferences[Keys.WALLPAPER_CONTRAST] =
+                value.coerceIn(0.5f, 1.5f)
+        }
+    }
+
+    suspend fun setWallpaperPreset(
+        value: String
+    ) {
+        context.launcherDataStore.edit { preferences ->
+            preferences[Keys.WALLPAPER_PRESET] = value
+        }
+    }
 
     suspend fun setGrid(
         columns: Int,

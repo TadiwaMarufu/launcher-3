@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EmoLauncher</string>
-    <string name="device_admin_description">Allows EmoLauncher to lock the screen when you double-tap the home screen.</string>
+    <string name="accessibility_service_name">EmoLauncher</string>
+    <string name="accessibility_service_description">Allows EmoLauncher to lock the screen when the double-tap gesture is used.</string>
 </resources>
