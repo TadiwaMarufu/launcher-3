@@ -215,75 +215,24 @@ private fun HomeAppItem(
     onLongClick: () -> Unit,
     onMove: (Int) -> Unit
 ) {
-    var dragging by remember {
-        mutableStateOf(false)
-    }
-
-    var dragOffsetX by remember {
-        mutableStateOf(0f)
-    }
-
-    var dragOffsetY by remember {
-        mutableStateOf(0f)
-    }
-
-
-    }
-
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .offset {
-                IntOffset(
-                    dragOffsetX.roundToInt(),
-                    dragOffsetY.roundToInt()
-                )
-            }
             .combinedClickable(
                 onClick = onClick,
-                onLongClick = {
-                    onLongClick()
-                    dragging = true
-                }
-            )
-            .pointerInput(customizationMode) {
-                if (customizationMode) {
-                    detectDragGesturesAfterLongPress(
-                        onDragStart = {
-                            dragging = true
-                        },
-                        onDragCancel = {
-                            dragging = false
-                            dragOffsetX = 0f
-                            dragOffsetY = 0f
-                        },
-                        onDragEnd = {
-                            dragging = false
-                            dragOffsetX = 0f
-                            dragOffsetY = 0f
-                        },
-                        onDrag = { change, amount ->
-                            change.consume()
-                            dragOffsetX += amount.x
-                            dragOffsetY += amount.y
-                        }
-                    )
-                }
-            },
+                onLongClick = onLongClick
+            ),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         EmoAppIcon(
             icon = app.icon,
-            modifier = Modifier,
-            iconSize = settings.iconSize
+            modifier = Modifier
         )
 
         if (settings.showLabels) {
             androidx.compose.material3.Text(
                 text = app.label,
-                fontSize = (
-                    12f * settings.labelSize
-                ).sp,
+                fontSize = (12f * settings.labelSize).sp,
                 maxLines = 1
             )
         }
