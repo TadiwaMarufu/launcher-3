@@ -117,8 +117,8 @@ class LauncherViewModel(
                         "${app.packageName}/${app.activityName}",
                     packageName =
                         app.packageName,
-                    label =
-                        app.label,
+                    activityName =
+                        app.activityName,
                     position = 0
                 )
             }
@@ -219,8 +219,9 @@ class LauncherViewModel(
     ) {
         viewModelScope.launch {
             homeLayout.moveApp(
-                app = app,
-                newPosition = position
+                packageName = app.packageName,
+                activityName = app.activityName,
+                position = position
             )
         }
     }

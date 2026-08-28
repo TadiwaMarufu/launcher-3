@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.emo.launcher.model.AppInfo
+import com.emo.launcher.model.HomeItem
 import com.emo.launcher.model.LauncherSettings
 import com.emo.launcher.ui.components.EmoAppIcon
 
@@ -29,6 +30,7 @@ import com.emo.launcher.ui.components.EmoAppIcon
 @Composable
 fun HomeScreen(
     apps: List<AppInfo>,
+    homeItems: List<HomeItem.App>,
     settings: LauncherSettings,
     onLaunchApp: (AppInfo) -> Unit,
     onOpenDrawer: () -> Unit,
@@ -41,11 +43,25 @@ fun HomeScreen(
     onIconSize: (Float) -> Unit,
     onLabelSize: (Float) -> Unit,
     onShowLabels: (Boolean) -> Unit,
-    onShowDock: (Boolean) -> Unit
+    onShowDock: (Boolean) -> Unit,
+    onMoveHomeApp: (HomeItem.App, Int) -> Unit
 ) {
     var customizationMode by remember {
         mutableStateOf(false)
     }
+
+    val appsById =
+        apps.associateBy {
+            "${it.packageName}/${it.activityName}"
+        }
+
+    val visibleHomeItems =
+        homeItems
+            .sortedBy { it.position }
+            .take(
+                settings.gridColumns *
+                    settings.gridRows
+            )
 
     Box(
         modifier = Modifier
@@ -100,32 +116,41 @@ fun HomeScreen(
                     horizontal = 4.dp,
                     vertical = 8.dp
                 ),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
+                horizontalArrangement =
+                    Arrangement.spacedBy(8.dp),
+                verticalArrangement =
+                    Arrangement.spacedBy(14.dp)
             ) {
                 items(
-                    items = apps.take(
-                        settings.gridColumns *
-                            settings.gridRows
-                    ),
-                    key = {
-                        "${it.packageName}/${it.activityName}"
-                    }
-                ) { app ->
+                    items = visibleHomeItems,
+                    key = { it.id }
+                ) { homeItem ->
 
-                    HomeAppItem(
-                        app = app,
-                        settings = settings,
-                        customizationMode = customizationMode,
-                        onClick = {
-                            if (!customizationMode) {
-                                onLaunchApp(app)
+                    val app =
+                        appsById[homeItem.id]
+
+                    if (app != null) {
+                        HomeAppItem(
+                            app = app,
+                            settings = settings,
+                            customizationMode =
+                                customizationMode,
+                            onClick = {
+                                if (!customizationMode) {
+                                    onLaunchApp(app)
+                                }
+                            },
+                            onLongClick = {
+                                customizationMode = true
+                            },
+                            onMove = { newPosition ->
+                                onMoveHomeApp(
+                                    homeItem,
+                                    newPosition
+                                )
                             }
-                        },
-                        onLongClick = {
-                            customizationMode = true
-                        }
-                    )
+                        )
+                    }
                 }
             }
 
@@ -173,7 +198,8 @@ private fun HomeAppItem(
     settings: LauncherSettings,
     customizationMode: Boolean,
     onClick: () -> Unit,
-    onLongClick: () -> Unit
+    onLongClick: () -> Unit,
+    onMove: (Int) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -182,7 +208,8 @@ private fun HomeAppItem(
                 onClick = onClick,
                 onLongClick = onLongClick
             ),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment =
+            Alignment.CenterHorizontally
     ) {
         EmoAppIcon(
             icon = app.icon,
@@ -193,7 +220,8 @@ private fun HomeAppItem(
             androidx.compose.material3.Text(
                 text = app.label,
                 fontSize = (
-                    12f * settings.labelSize
+                    12f *
+                        settings.labelSize
                 ).sp,
                 maxLines = 1
             )

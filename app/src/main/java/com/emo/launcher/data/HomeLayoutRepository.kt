@@ -24,9 +24,7 @@ class HomeLayoutRepository(
 
     val items: Flow<List<HomeItem.App>> =
         context.homeLayoutDataStore.data.map { preferences ->
-            decode(
-                preferences[Keys.APP_POSITIONS]
-            )
+            decode(preferences[Keys.APP_POSITIONS])
         }
 
     suspend fun save(
@@ -41,81 +39,83 @@ class HomeLayoutRepository(
     suspend fun reconcile(
         installedApps: List<HomeItem.App>,
         maxItems: Int
-    ): List<HomeItem.App> {
-
-        val saved = items.first()
+    ) {
+        val existing = items.first()
 
         val installedById =
             installedApps.associateBy { it.id }
 
-        val validSaved = saved
-            .asSequence()
-            .filter { installedById.containsKey(it.id) }
-            .sortedBy { it.position }
-            .toList()
-
-        val usedIds =
-            validSaved.map { it.id }.toHashSet()
-
-        val nextPosition =
-            validSaved
-                .maxOfOrNull { it.position }
-                ?.plus(1)
-                ?: 0
-
-        var position = nextPosition
-
-        val missing = installedApps
-            .asSequence()
-            .filterNot { usedIds.contains(it.id) }
-            .sortedBy { it.label.lowercase() }
-            .map { app ->
-                val item =
-                    app.copy(
-                        position = position
-                    )
-
-                position++
-                item
-            }
-            .toList()
-
-        val result =
-            (validSaved + missing)
+        val kept =
+            existing
+                .filter { installedById.containsKey(it.id) }
                 .sortedBy { it.position }
+
+        val existingIds =
+            kept.map { it.id }.toHashSet()
+
+        val missing =
+            installedApps
+                .filterNot { existingIds.contains(it.id) }
+
+        val merged =
+            (kept + missing.mapIndexed { index, app ->
+                app.copy(
+                    position = kept.size + index
+                )
+            })
                 .take(maxItems)
+                .mapIndexed { index, app ->
+                    app.copy(position = index)
+                }
 
-        save(result)
-
-        return result
+        save(merged)
     }
 
     suspend fun moveApp(
-        app: HomeItem.App,
-        newPosition: Int
+        packageName: String,
+        activityName: String,
+        position: Int
     ) {
         val current =
             items.first()
-                .filterNot { it.id == app.id }
-                .toMutableList()
 
-        val clamped =
-            newPosition.coerceAtLeast(0)
+        val id =
+            "$packageName/$activityName"
 
-        current.add(
-            app.copy(
-                position = clamped
+        val moving =
+            current.firstOrNull {
+                it.id == id
+            } ?: HomeItem.App(
+                id = id,
+                packageName = packageName,
+                activityName = activityName,
+                position = position
             )
-        )
 
-        val normalized =
-            current
-                .sortedBy { it.position }
+        val withoutMoving =
+            current.filterNot {
+                it.id == id
+            }
+
+        val target =
+            position.coerceIn(
+                0,
+                withoutMoving.size
+            )
+
+        val updated =
+            withoutMoving
+                .toMutableList()
+                .apply {
+                    add(target, moving)
+                }
                 .mapIndexed { index, item ->
-                    item.copy(position = index)
+                    item.copy(
+                        position = index
+                    )
                 }
 
-        save(normalized)
+        save(updated)
     }
 
     private fun encode(
@@ -135,7 +135,6 @@ class HomeLayoutRepository(
     private fun decode(
         value: String?
     ): List<HomeItem.App> {
-
         if (value.isNullOrBlank()) {
             return emptyList()
         }
@@ -143,7 +142,6 @@ class HomeLayoutRepository(
         return value
             .split("|")
             .mapNotNull { entry ->
-
                 val parts =
                     entry.split(",")
 
@@ -152,28 +150,18 @@ class HomeLayoutRepository(
                 }
 
                 val position =
-                    parts[0]
-                        .toIntOrNull()
+                    parts[0].toIntOrNull()
                         ?: return@mapNotNull null
 
-                val packageName =
-                    parts[1]
-
-                val activityName =
-                    parts[2]
-
-                if (
-                    packageName.isBlank() ||
-                    activityName.isBlank()
-                ) {
-                    return@mapNotNull null
-                }
-
                 HomeItem.App(
-                    id = "$packageName/$activityName",
-                    packageName = packageName,
-                    label = "",
-                    position = position
+                    id =
+                        "${parts[1]}/${parts[2]}",
+                    packageName =
+                        parts[1],
+                    activityName =
+                        parts[2],
+                    position =
+                        position
                 )
             }
             .sortedBy { it.position }
